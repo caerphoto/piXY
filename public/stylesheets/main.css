@@ -1,0 +1,154 @@
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #333;
+    color: #EEE;
+    font-family: sans-serif;
+
+    margin: 0;
+    padding: 10px 50px;
+}
+
+input, button {
+    font-size: 100%;
+}
+
+#image-url {
+    width: 700px;
+    background-color: #EEE;
+    color: #333;
+
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ACF;
+
+    padding: 3px;
+    margin-right: 10px;
+}
+
+#main-wrapper {
+    margin-top: 20px;
+    position: relative;
+    height: 500px;
+}
+
+#info {
+    background-color: #DEF;
+    border: 3px solid #ACF;
+
+    font-family: monospace;
+    line-height: 1em;
+
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    width: 27em;
+    height: 30px;
+
+    padding: 0.5em;
+    color: #333;
+}
+
+#bgpos-info {
+    color: #A00;
+}
+
+#size-info {
+    color: #080;
+}
+
+.option {
+    position: absolute;
+    bottom: -20px;
+    height: 15px;
+}
+
+#binary-transparency-container {
+    right: 380px;
+}
+
+#zoom-level-container {
+    right: 250px;
+}
+
+#bg-type-container {
+    right: 0px;
+}
+
+#box-sizer, .image-box {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+.image-box {
+    border: 1px solid #ACF;
+    overflow: auto;
+}
+
+#navigator {
+    left: 0;
+    width: 200px;
+    display: none;
+}
+
+#box-sizer {
+    left: 202px;
+    width: 8px;
+    cursor: ew-resize;
+    background-color: #ACF;
+    display: none;
+}
+
+#zoomed-view {
+    left: 0px;
+    right: 0;
+    overflow: hidden;
+}
+
+#viewport, #image-scroller {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#image-scroller {
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+#sprite-marker {
+    width: 0;
+    height: 0;
+}
+
+.crop {
+    position: absolute;
+    border-style: dashed;
+    border-width: 0;
+}
+
+.crop.active {
+    background-color: rgba(100%, 100%, 100%, 0.1);
+}
+
+#crop-top, #crop-left {
+    border-color: #F00;
+}
+
+#crop-bottom, #crop-right {
+    border-color: #0F0;
+}
+
+#crop-top, #crop-bottom { height: 10px; left: 0; right: 0; }
+#crop-left, #crop-right { width: 10px; top: 0; bottom: 0; }
+
+#crop-top { border-bottom-width: 1px; }
+#crop-right { border-left-width: 1px; }
+#crop-bottom { border-top-width: 1px; }
+#crop-left { border-right-width: 1px; }

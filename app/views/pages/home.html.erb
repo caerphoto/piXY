@@ -1,0 +1,72 @@
+<h1>piXY</h1>
+<p id="instructions">Enter an image URL, <del title="Coming soon!"
+    style="cursor:help">or upload one,</del> then mark a
+rectangle on it to see coordinates and dimensions.</p>
+
+<div id="url-container">
+    <input type="text" id="image-url" value="http://img260.imageshack.us/img260/6623/pinkyfw2.png"/>
+    <button id="load-image">Load</button>
+</div>
+
+<div id="main-wrapper">
+    <div id="navigator" class="image-box">
+        <img id="nav-image"/>
+        <div id="nav-marker"></div>
+    </div>
+
+    <div id="box-sizer"></div>
+
+    <div id="zoomed-view" class="image-box">
+        <canvas id="viewport"></canvas>
+        <div id="image-scroller">
+            <div id="sprite-marker">
+                <div class="crop" id="crop-top"></div>
+                <div class="crop" id="crop-right"></div>
+                <div class="crop" id="crop-bottom"></div>
+                <div class="crop" id="crop-left"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="info">
+        <div id="bgpos-info">
+            background-position: -<span id="x"></span>px
+            -<span id="y"></span>px</div>
+        <div id="size-info">
+            Selection size: <span id="w"></span>px &times;
+            <span id="h"></span>px
+        </div>
+    </div>
+
+    <div id="binary-transparency-container" class="option">
+        <label for="binary-transparency" title=
+            "When on, any partially transparent pixels will be shown as fully opaque.">
+            Binary transparency: </label>
+        <input type="checkbox" checked id="binary-transparency"/>
+    </div>
+
+    <div id="zoom-level-container" class="option">
+        <label for="zoom-level">Zoom: </label>
+        <select id="zoom-level">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=6>6</option>
+            <option value=8 selected>8</option>
+            <option value=12>12</option>
+            <option value=16>16</option>
+        </select>
+    </div>
+
+    <div id="bg-type-container" class="option">
+        <label for="bg-type">Background: </label>
+        <select id="bg-type">
+            <option value="gray-check" selected>Grey squares</option>
+            <option value="white">White</option>
+            <option value="gray">Grey</option>
+            <option value="black">Black</option>
+            <option value="blue">Blue</option>
+        </select>
+    </div>
+</div>
