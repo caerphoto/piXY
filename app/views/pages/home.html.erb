@@ -4,11 +4,12 @@
 mark sprite position and size.</p>
 
 <div id="url-container">
-    <input type="text" id="image-url" value="http://pixy.heroku.com/images/pixy_sample.png"/>
+    <input type="text" id="image-url"/>
     <button id="load-image">Load</button>
 </div>
 
 <div id="main-wrapper">
+    <div id="loading-message">Loading...</div>
     <div id="navigator" class="image-box">
         <img id="nav-image"/>
         <div id="nav-marker"></div>
@@ -52,9 +53,9 @@ mark sprite position and size.</p>
             <option value=1>1</option>
             <option value=2>2</option>
             <option value=3>3</option>
-            <option value=4>4</option>
+            <option value=4 selected>4</option>
             <option value=6>6</option>
-            <option value=8 selected>8</option>
+            <option value=8>8</option>
             <option value=12>12</option>
             <option value=16>16</option>
         </select>

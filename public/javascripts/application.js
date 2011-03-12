@@ -1,6 +1,7 @@
 $(function () {
     var $imageURL = $("#image-url"),
         $load = $("#load-image"),
+        $loadingMessage = $("#loading-message"),
         $imageScroller = $("#image-scroller"),
         $spriteMarker = $("#sprite-marker"),
         $w = $("#w"), $h = $("#h"),
@@ -46,7 +47,7 @@ $(function () {
         ox, oy, // sub-zoomed-pixel offsets
         spriteL = 0, spriteT = 0, spriteR = 0, spriteB = 0,
         spriteW = 0, spriteH = 0,
-        zoomLevel = 8;
+        zoomLevel = parseInt($zoomLevel.val(), 10);
 
     // Create a viewport-sized source tiled with the 'transparency.png' image.
     // This is to avoid having to tile it each frame.
@@ -98,10 +99,15 @@ $(function () {
 
     transPatternImage.src = "images/transparent.png";
 
+    // Demo image
+    sourceImage.src = "images/pixy_sample.png";
+
     $load.click(function () {
+        $loadingMessage.fadeIn(100);
         $.get("image", { url: $imageURL.val() }, function (data) {
             if (data === "ERROR") {
                 alert("Sorry, unable to load that image.");
+                $loadingMessage.fadeOut();
             } else {
                 sourceImage.src = data;
             }
@@ -112,6 +118,7 @@ $(function () {
         var w, h, tempCanvas, tempCtx;
 
         $imageScroller.show();
+        $loadingMessage.fadeOut();
 
         w = sourceImage.width;
         h = sourceImage.height;
