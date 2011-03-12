@@ -5,6 +5,8 @@ $(function () {
         $spriteMarker = $("#sprite-marker"),
         $w = $("#w"), $h = $("#h"),
         $x = $("#x"), $y = $("#y"),
+        $bgposInfo = $("#bgpos-info"),
+        $sizeInfo = $("#size-info"),
         $zoomLevel = $("#zoom-level"),
         $bgType = $("#bg-type"),
         bgType = "gray-check",
@@ -46,6 +48,8 @@ $(function () {
         spriteW = 0, spriteH = 0,
         zoomLevel = 8;
 
+    // Create a viewport-sized source tiled with the 'transparency.png' image.
+    // This is to avoid having to tile it each frame.
     createTransparency = function () {
         var x, y,
             transW = transPatternImage.width,
@@ -59,14 +63,14 @@ $(function () {
     };
 
     resetSizes = function () {
-        dw = Math.floor($imageScroller.width() / zoomLevel) * zoomLevel;
-        dh = Math.floor($imageScroller.height() / zoomLevel) * zoomLevel;
+        var scaledW = sourceImage.width * zoomLevel,
+            scaledH = sourceImage.height * zoomLevel;
+
+        dw = Math.floor($imageScroller.width() / zoomLevel + 1) * zoomLevel;
+        dh = Math.floor($imageScroller.height() / zoomLevel + 1) * zoomLevel;
 
         viewportCanvas.width = dw;
         viewportCanvas.height = dh;
-
-        viewportCanvas.style.height = dh + "px";
-        viewportCanvas.style.width = dw + "px";
 
         transPatternCanvas.width = dw;
         transPatternCanvas.height = dh;
@@ -80,11 +84,14 @@ $(function () {
         compBuffer2Canvas.width = dw;
         compBuffer2Canvas.height = dh;
 
-        $cropTop.width(sourceImage.width * zoomLevel);
-        $cropBottom.width(sourceImage.width * zoomLevel);
+        $cropTop.width(scaledW);
+        $cropBottom.width(scaledW);
 
-        $cropLeft.height(sourceImage.height * zoomLevel);
-        $cropRight.height(sourceImage.height * zoomLevel);
+        $cropLeft.height(scaledH);
+        $cropRight.height(scaledH);
+
+        $spriteMarker.width(scaledW);
+        $spriteMarker.height(scaledH);
 
         createTransparency();
     }; // resetSizes()
@@ -93,13 +100,18 @@ $(function () {
 
     $load.click(function () {
         $.get("image", { url: $imageURL.val() }, function (data) {
-            sourceImage.src = data;
-            console.log("Image loaded.");
+            if (data === "ERROR") {
+                alert("Sorry, unable to load that image.");
+            } else {
+                sourceImage.src = data;
+            }
         });
     });
 
     $(sourceImage).load(function () {
         var w, h, tempCanvas, tempCtx;
+
+        $imageScroller.show();
 
         w = sourceImage.width;
         h = sourceImage.height;
@@ -124,8 +136,42 @@ $(function () {
     });
 
     $zoomLevel.change(function () {
+        var oldScrollL = $imageScroller.scrollLeft(),
+            oldScrollT = $imageScroller.scrollTop(),
+            scrollOffset,
+            scale, scalePos,
+            oldZoomLevel = zoomLevel;
+
         zoomLevel = parseInt($zoomLevel.val(), 10);
+
+        scale = function(v) {
+            return v * zoomLevel / oldZoomLevel;
+        };
+
+        scalePos = function($c, tl) {
+            // Use offset position for top and left crop markers, to account
+            // for their height/width.
+            var offset = tl ? Math.min($c.height(), $c.width()) : 0,
+                oldPos = {
+                    left: parseInt($c.css("left"), 10) + offset,
+                    top: parseInt($c.css("top"), 10) + offset
+                };
+            $c.css({
+                top: scale(oldPos.top) - offset,
+                left: scale(oldPos.left) - offset
+            });
+        };
+
         $(window).trigger("resize");
+
+        $imageScroller.scrollLeft(scale(oldScrollL));
+        $imageScroller.scrollTop(scale(oldScrollT));
+
+        // Scale sprite marker positions
+        scalePos($cropLeft, true);
+        scalePos($cropTop, true);
+        scalePos($cropRight);
+        scalePos($cropBottom);
     });
 
     $bgType.change(function () {
@@ -251,6 +297,8 @@ $(function () {
 
         $cropTopLeft.toggleClass("active", cropType === 1);
         $cropBottomRight.toggleClass("active", cropType === -1);
+        $bgposInfo.toggleClass("active", cropType === 1);
+        $sizeInfo.toggleClass("active", cropType === -1);
     });
 
     $imageScroller.mousemove(function (e) {

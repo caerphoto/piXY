@@ -9,7 +9,7 @@ body {
     font-family: sans-serif;
 
     margin: 0;
-    padding: 10px 50px;
+    padding: 0 20px;
 }
 
 input, button {
@@ -30,9 +30,9 @@ input, button {
 }
 
 #main-wrapper {
-    margin-top: 20px;
-    position: relative;
-    height: 500px;
+    position: absolute;
+    top: 11em; bottom: 60px;
+    left: 20px; right: 20px;
 }
 
 #info {
@@ -45,19 +45,32 @@ input, button {
     position: absolute;
     bottom: -50px;
     left: 0;
-    width: 27em;
+    width: 23em;
     height: 30px;
 
     padding: 0.5em;
     color: #333;
 }
 
+#info div {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+#info div.active {
+    background-color: #FFF;
+    border-color: #FFF;
+}
+
 #bgpos-info {
     color: #A00;
+    /*border-color: #F00;*/
 }
 
 #size-info {
     color: #080;
+    /*border-color: #0A0;*/
 }
 
 .option {
@@ -92,7 +105,7 @@ input, button {
 #navigator {
     left: 0;
     width: 200px;
-    display: none;
+    display: none; /* hidden until I actually implement it */
 }
 
 #box-sizer {
@@ -120,6 +133,7 @@ input, button {
     width: 100%;
     height: 100%;
     cursor: crosshair;
+    display: none; /* hidden until an image is loaded */
 }
 
 #sprite-marker {

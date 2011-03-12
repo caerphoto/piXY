@@ -1,10 +1,10 @@
 <h1>piXY</h1>
 <p id="instructions">Enter an image URL, <del title="Coming soon!"
-    style="cursor:help">or upload one,</del> then mark a
-rectangle on it to see coordinates and dimensions.</p>
+    style="cursor:help">or upload one,</del> then click the zoomed image to
+mark sprite position and size.</p>
 
 <div id="url-container">
-    <input type="text" id="image-url" value="http://img260.imageshack.us/img260/6623/pinkyfw2.png"/>
+    <input type="text" id="image-url" value="http://pixy.heroku.com/images/pixy_sample.png"/>
     <button id="load-image">Load</button>
 </div>
 
@@ -31,10 +31,11 @@ rectangle on it to see coordinates and dimensions.</p>
     <div id="info">
         <div id="bgpos-info">
             background-position: -<span id="x"></span>px
-            -<span id="y"></span>px</div>
+            -<span id="y"></span>px;
+        </div>
         <div id="size-info">
-            Selection size: <span id="w"></span>px &times;
-            <span id="h"></span>px
+            width: <span id="w"></span>px;
+            height: <span id="h"></span>px;
         </div>
     </div>
 
