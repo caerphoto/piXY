@@ -254,6 +254,12 @@ $(function () {
         sw = Math.floor(viewportCanvas.width / zoomLevel);
         sh = Math.floor(viewportCanvas.height / zoomLevel);
 
+        // Ensure we don't try to get image data from outside the image
+        // (Firefox doesn't like it when we try to do this - complains about an
+        // invalid string, error 12).
+        sw = Math.min(sw, sourceImage.width - sx);
+        sh = Math.min(sh, sourceImage.height - sy);
+
         dw = sw * zoomLevel;
         dh = sh * zoomLevel;
 

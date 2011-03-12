@@ -16,6 +16,25 @@ input, button {
     font-size: 100%;
 }
 
+h1 {
+    float: left;
+    margin: 0 25px 20px 0;
+    padding: 0;
+    font-size: 2em;
+}
+
+h1:after {
+    content: " : ";
+}
+
+#instructions {
+    padding-top: 1em;
+}
+
+#url-container {
+    clear: both;
+}
+
 #image-url {
     width: 700px;
     background-color: #EEE;
@@ -31,7 +50,7 @@ input, button {
 
 #main-wrapper {
     position: absolute;
-    top: 11em; bottom: 60px;
+    top: 8em; bottom: 60px;
     left: 20px; right: 20px;
 }
 
