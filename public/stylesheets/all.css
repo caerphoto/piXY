@@ -3,6 +3,20 @@ html {
     padding: 0;
 }
 
+#debug {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 999;
+    /*width: 10em;*/
+    border: 1px solid #666;
+    font-size: 11px;
+    font-family: monospace;
+    line-height: 20px;
+    color: #CCC;
+    padding: 5px;
+}
+
 body {
     background-color: #333;
     color: #EEE;

@@ -14,6 +14,10 @@ $(function () {
         $binaryTransparency = $("#binary-transparency"),
         binaryTransparency = true,
 
+        $debug1 = $("#debug1"),
+        $debug2 = $("#debug2"),
+        $debug3 = $("#debug3"),
+
         cropType = -1,
         lockedX, lockedY, lockedW, lockedH,
 
@@ -24,7 +28,7 @@ $(function () {
         $cropBottom = $("#crop-bottom"),
         $cropLeft = $("#crop-left"),
 
-        drawScaledImage2, drawAutoScaledImage,
+        drawScaledImage, drawAutoScaledImage, scaleFunction,
 
         sourceImage = new Image(),
         transPatternImage = new Image(),
@@ -49,6 +53,94 @@ $(function () {
         spriteW = 0, spriteH = 0,
         zoomLevel = parseInt($zoomLevel.val(), 10);
 
+    // Use browser's native scaling algorithm. Will only be used if we can be
+    // sure the browser can be set to use nearest-neighbour scaling. Hopefully
+    // WHATWG will see the light and provide a standard way to control the
+    // resampling method.
+    drawAutoScaledImage = function () {
+        var start = new Date(), fullRenderTime;
+
+        // Smoothing must apparently be disabled right before drawing. That or
+        // I'm getting confused.
+        compBuffer.mozImageSmoothingEnabled = false;
+        compBuffer.drawImage(binaryTransparency ?
+            compBuffer2Canvas : sourceImage,
+            sx, sy, sw, sh, dx, dy, dw, dh);
+
+        fullRenderTime = (new Date()) - start;
+        $debug3.text(fullRenderTime);
+    };
+
+    // Custom nearest-neighbour scaling algorithm. Slower than using the
+    // browser's native scaling, but the only way to do it if the browser
+    // doesn't support disabling of image smoothing.
+    drawScaledImage = function () {
+       var sourceData, destData, sd, dd,
+            sp, dp,
+            x1, y1, x2, y2,
+            scaleRenderTime, dupRenderTime, finalRenderTime;
+
+        var startTime = new Date();
+
+        sourceData = sourceBuffer.getImageData(sx, sy, sw, sh);
+        destData = renderBuffer.createImageData(dw, dh);
+
+        sd = sourceData.data;
+        dd = destData.data;
+
+        // Draw a copy of each source pixel at the scaled location.
+        for (y1 = 0; y1 < sh; y1 += 1) {
+            for (x1 = 0; x1 < sw; x1 += 1) {
+                sp = (x1 + y1 * sw) * 4;
+
+                x2 = x1 * zoomLevel;
+                y2 = y1 * zoomLevel;
+
+                dp = (x2 + y2 * dw) * 4;
+
+                if (sd[sp + 3] !== 0) {
+                    dd[dp]     = sd[sp];
+                    dd[dp + 1] = sd[sp + 1];
+                    dd[dp + 2] = sd[sp + 2];
+                    dd[dp + 3] = binaryTransparency ? 255 : sd[sp + 3];
+                }
+            }
+        }
+
+        scaleRenderTime = (new Date()) - startTime;
+        $debug1.text(scaleRenderTime);
+
+        renderBuffer.putImageData(destData, 0, 0);
+
+        // Duplicate the scaled pixels using drawImage - this is much faster
+        // than drawing each pixel individually.
+        compBuffer2.clearRect(0, 0, dw, dh);
+        // Duplicate horizontally.
+        for (x1 = 0; x1 < zoomLevel; x1 += 1) {
+            compBuffer2.drawImage(renderBufferCanvas, x1, 0);
+        }
+        // Duplicate the horizontal row vertically.
+        for (y1 = 0; y1 < zoomLevel; y1 += 1) {
+            compBuffer.drawImage(compBuffer2Canvas, 0, y1);
+        }
+
+        dupRenderTime = (new Date()) - scaleRenderTime - startTime;
+        fullRenderTime = (new Date()) - startTime;
+        $debug2.text(dupRenderTime);
+        $debug3.text(fullRenderTime);
+    }; // drawScaledImage()
+
+    if (typeof compBuffer.mozImageSmoothingEnabled !== "undefined") {
+        scaleFunction = drawAutoScaledImage;
+    } else {
+        scaleFunction = drawScaledImage;
+    }
+
+    transPatternImage.src = "images/transparent.png";
+
+    // Demo image
+    sourceImage.src = "images/pixy_sample.png";
+
     // Create a viewport-sized source tiled with the 'transparency.png' image.
     // This is to avoid having to tile it each frame.
     createTransparency = function () {
@@ -63,6 +155,7 @@ $(function () {
         }
     };
 
+    // Adjust canvas sizes to match the viewport.
     resetSizes = function () {
         var scaledW = sourceImage.width * zoomLevel,
             scaledH = sourceImage.height * zoomLevel;
@@ -82,8 +175,10 @@ $(function () {
         compBufferCanvas.width = dw;
         compBufferCanvas.height = dh;
 
-        compBuffer2Canvas.width = dw;
-        compBuffer2Canvas.height = dh;
+        if (scaleFunction !== drawAutoScaledImage) {
+            compBuffer2Canvas.width = dw;
+            compBuffer2Canvas.height = dh;
+        }
 
         $cropTop.width(scaledW);
         $cropBottom.width(scaledW);
@@ -97,11 +192,10 @@ $(function () {
         createTransparency();
     }; // resetSizes()
 
-    transPatternImage.src = "images/transparent.png";
-
-    // Demo image
-    sourceImage.src = "images/pixy_sample.png";
-
+    // Load base64-encoded image from the server. Ideally I'd use the request
+    // URL as the actual image source, but this means fetching the image
+    // server-side, then relaying it to the client. I don't know how to do this
+    // in Rails :( Instead I'm sending a base64-encoded data: URI.
     $load.click(function () {
         $loadingMessage.fadeIn(100);
         $.get("image", { url: $imageURL.val() }, function (data) {
@@ -114,8 +208,9 @@ $(function () {
         });
     });
 
+    // Image onLoad event handler: sets up source image canvas etc.
     $(sourceImage).load(function () {
-        var w, h, tempCanvas, tempCtx;
+        var w, h, sp, sd, sourceData;
 
         $imageScroller.show();
         $loadingMessage.fadeOut();
@@ -128,6 +223,22 @@ $(function () {
         sourceCanvas.width = w;
         sourceCanvas.height = h;
         sourceBuffer.drawImage(sourceImage, 0, 0);
+
+        // Create a binary transparency version of the source image.
+        if (scaleFunction === drawAutoScaledImage) {
+            sourceData = sourceBuffer.getImageData(0, 0, w, h);
+            sd = sourceData.data;
+
+            for (sp = 3, len = sd.length; sp < len; sp += 4) {
+                if (sd[sp]) {
+                    sd[sp] = 255;
+                }
+            }
+
+            compBuffer2Canvas.width = w;
+            compBuffer2Canvas.height = h;
+            compBuffer2.putImageData(sourceData, 0, 0);
+        }
 
         $spriteMarker.width(w * zoomLevel).height(h * zoomLevel);
 
@@ -155,6 +266,8 @@ $(function () {
             return v * zoomLevel / oldZoomLevel;
         };
 
+        // Calculate an marker position for the new scale level equivalent(ish)
+        // to the previous scale.
         scalePos = function($c, tl) {
             // Use offset position for top and left crop markers, to account
             // for their height/width.
@@ -169,6 +282,7 @@ $(function () {
             });
         };
 
+        // Make sure elements are resized before trying to set new positions.
         $(window).trigger("resize");
 
         $imageScroller.scrollLeft(scale(oldScrollL));
@@ -191,59 +305,7 @@ $(function () {
         $(window).trigger("resize");
     });
 
-    // Uses browser's own scaling algorithm, which is probably fast, and
-    // probaly not very nice.
-    drawAutoScaledImage = function () {
-        compBuffer.clearRect(0, 0, dw, dh);
-        compBuffer.drawImage(sourceCanvas, sx, sy, sw, sh, dx, dy, dw, dh);
-    };
-
-    // Custom nearest-neighbour scaling algorithm, for pixel-perfect
-    // positioning when zoomed in.
-    drawScaledImage2 = function () {
-       var sourceData, destData, sd, dd,
-            sp, dp,
-            x1, y1, x2, y2;
-
-        sourceData = sourceBuffer.getImageData(sx, sy, sw, sh);
-        destData = renderBuffer.createImageData(dw, dh);
-
-        sd = sourceData.data;
-        dd = destData.data;
-
-        for (y1 = 0; y1 < sh; y1 += 1) {
-            for (x1 = 0; x1 < sw; x1 += 1) {
-                sp = (x1 + y1 * sw) * 4;
-
-                x2 = x1 * zoomLevel;
-                y2 = y1 * zoomLevel;
-
-                dp = (x2 + y2 * dw) * 4;
-
-                if (sd[sp + 3] !== 0) {
-                    dd[dp]     = sd[sp];
-                    dd[dp + 1] = sd[sp + 1];
-                    dd[dp + 2] = sd[sp + 2];
-                    dd[dp + 3] = binaryTransparency ? 255 : sd[sp + 3];
-                }
-            }
-        }
-
-        renderBuffer.putImageData(destData, 0, 0);
-
-        compBuffer2.clearRect(0, 0, dw, dh);
-
-        for (x1 = 0; x1 < zoomLevel; x1 += 1) {
-            compBuffer2.drawImage(renderBufferCanvas, x1, 0);
-        }
-
-        for (y1 = 0; y1 < zoomLevel; y1 += 1) {
-            compBuffer.drawImage(compBuffer2Canvas, 0, y1);
-        }
-
-        //compBuffer.drawImage(compBuffer2Canvas, 0, 0);
-    }; // drawScaledImage2()
-
+    // Math-tastic image and marker positioning stuff.
     $imageScroller.scroll(function () {
         var sT = $imageScroller.scrollTop(),
             sL = $imageScroller.scrollLeft();
@@ -291,8 +353,7 @@ $(function () {
             compBuffer.fillRect(0, 0, dw, dh);
         }
 
-        //drawAutoScaledImage();
-        drawScaledImage2();
+        scaleFunction();
 
         viewport.drawImage(compBufferCanvas, ox, oy);
     });
