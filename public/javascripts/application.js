@@ -1,6 +1,8 @@
 $(function () {
     var $imageURL = $("#image-url"),
         $load = $("#load-image"),
+        $uploadButton = $("#upload-button"),
+        $frame = $("#upload-receiver"),
         $loadingMessage = $("#loading-message"),
         $imageScroller = $("#image-scroller"),
         $spriteMarker = $("#sprite-marker"),
@@ -207,6 +209,27 @@ $(function () {
             }
         });
     });
+
+    // The iframe reveives the base64-encoded image in its body tag.
+    $frame.load(function () {
+        var data = $frame[0].contentWindow.document.body.innerHTML;
+        if (data === "ERROR") {
+            alert("Sorry, unable to load that image.");
+            $loadingMessage.fadeOut();
+        } else {
+            sourceImage.src = data;
+        }
+    });
+
+    $("#upload-url-toggle").click(function () {
+            $("#src-url").toggle();
+            $("#src-upload").toggle();
+        });
+
+    $uploadButton.click(function () {
+        $loadingMessage.fadeIn(100);
+        $("#upload-form").submit();
+    }); // $uploadButton.click(handler)
 
     // Image onLoad event handler: sets up source image canvas etc.
     $(sourceImage).load(function () {

@@ -6,12 +6,28 @@
 </div>
 
 <h1>piXY</h1>
-<p id="instructions">Enter an image URL, then click the zoomed image to
+<p id="instructions">Enter an image URL, or upload an image file, then click the zoomed image to
 mark sprite position and size.</p>
 
 <div id="url-container">
-    <input type="text" id="image-url"/>
-    <button id="load-image">Load</button>
+    <button id="upload-url-toggle" title="Switch between loading from a URL, and loading from an uploaded file."></button>
+    <div id="src-url">
+        <input type="text" id="image-url"/>
+        <button id="load-image">Load</button>
+    </div>
+
+    <div id="src-upload">
+        <form id="upload-form" action="/upload" method="POST"
+            target="uploadframe" enctype="multipart/form-data"
+            encoding="multipart/form-data">
+            <input type="file" name="upload" id="upload-input" size=20 accept="image/*"/>
+        </form>
+        <button id="upload-button">Upload</button>
+
+        <!-- container for receiving uploaded file data -->
+        <iframe name="uploadframe" src="about:blank" style="display: none" id="upload-receiver">
+        </iframe>
+    </div>
 </div>
 
 <div id="main-wrapper">

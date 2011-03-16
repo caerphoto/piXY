@@ -7,6 +7,7 @@ Pixy::Application.routes.draw do
   # Keep in mind you can assign values other than :controller and :action
 
   match "image" => "image#show"
+  match "upload" => "image#upload"
 
   # Sample of named route:
   #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase

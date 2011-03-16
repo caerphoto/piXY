@@ -28,6 +28,7 @@ body {
 
 input, button {
     font-size: 100%;
+    width: 6em;
 }
 
 h1 {
@@ -45,11 +46,35 @@ h1:after {
     padding-top: 1em;
 }
 
+#upload-url-toggle, #upload-button, #load-image {
+    margin-top: 5px;
+}
+
+#upload-url-toggle {
+    width: 26px;
+    height: 26px;
+    background-image: url("/images/toggle_up_down.gif");
+    border: 1px solid #ACF;
+    background-color: #EEE;
+    cursor: pointer;
+    float: left;
+    margin-right: 10px;
+}
+
+#upload-url-toggle:hover {
+    background-color: #FFF;
+    border-color: #ACF;
+}
+
+#upload-url-toggle:active {
+    background-color: #ACF;
+}
+
 #url-container {
     clear: both;
 }
 
-#image-url {
+#image-url, #upload-form {
     width: 700px;
     background-color: #EEE;
     color: #333;
@@ -60,6 +85,21 @@ h1:after {
 
     padding: 3px;
     margin-right: 10px;
+
+    float: left;
+}
+
+#src-upload {
+    display: none;
+}
+
+#image-url {
+    height: 25px;
+}
+
+#upload-input {
+    width: 600px;
+    height: 25px;
 }
 
 #main-wrapper {

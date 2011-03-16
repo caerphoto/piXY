@@ -1,18 +1,31 @@
 require "open-uri"
 
 class ImageController < ApplicationController
-    def show
-        begin
-            b64 = ["data:"]
-            open(params[:url]) do |io|
-                b64.push io.content_type
-                b64.push ";base64,"
-                b64.push ActiveSupport::Base64.encode64(io.read)
-            end
+    def data_uri_encode(filedata)
+        result = ["data:"]
+        result.push filedata.content_type
+        result.push ";base64,"
+        result.push ActiveSupport::Base64.encode64(filedata.read)
+        result.join
+    end
 
-            render :text => b64.join
+    def show
+        response = ""
+        begin
+            open(params[:url]) { |io| response = data_uri_encode io }
         rescue
-            render :text => "ERROR"
+            response = "ERROR"
         end
+        render :text => response
+    end
+
+    def upload
+        response = ""
+        begin
+            response = data_uri_encode(params["upload"])
+        rescue
+            response = "ERROR"
+        end
+        render :text => response
     end
 end
