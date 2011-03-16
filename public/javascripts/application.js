@@ -280,7 +280,7 @@ $(function () {
         $spriteMarker.width(w * zoomLevel).height(h * zoomLevel);
 
         cropType = -1;
-        if (transparencyTileLoaded) {
+        if (transparencyLoaded) {
             resetSizes();
             $imageScroller.trigger("click");
             $imageScroller.trigger("scroll");

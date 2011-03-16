@@ -62,6 +62,9 @@ input, button {
     border: none;
 }
 
+/* Prevent ugly dotted focus indicator in Firefox. */
+#upload-url-toggle::-moz-focus-inner { border: 0; }
+
 #upload-url-toggle:hover {
     background-position: 0 -24px;
 }
