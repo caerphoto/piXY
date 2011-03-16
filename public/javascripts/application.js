@@ -16,6 +16,8 @@ $(function () {
         $binaryTransparency = $("#binary-transparency"),
         binaryTransparency = true,
 
+        sampleLoaded = false, transparencyLoaded = false,
+
         $debug1 = $("#debug1"),
         $debug2 = $("#debug2"),
         $debug3 = $("#debug3"),
@@ -138,10 +140,10 @@ $(function () {
         scaleFunction = drawScaledImage;
     }
 
-    transPatternImage.src = "images/transparent.png";
+    transPatternImage.src = "/images/transparent1.png";
 
     // Demo image
-    sourceImage.src = "images/pixy_sample.png";
+    sourceImage.src = "/images/sprite.png";
 
     // Create a viewport-sized source tiled with the 'transparency.png' image.
     // This is to avoid having to tile it each frame.
@@ -224,6 +226,7 @@ $(function () {
     $("#upload-url-toggle").click(function () {
             $("#src-url").toggle();
             $("#src-upload").toggle();
+            $("#upload-url-toggle").toggleClass("url");
         });
 
     $uploadButton.click(function () {
@@ -231,11 +234,22 @@ $(function () {
         $("#upload-form").submit();
     }); // $uploadButton.click(handler)
 
+    $(transPatternImage).load(function () {
+        transparencyLoaded = true;
+        if (sampleLoaded) {
+            resetSizes();
+            $imageScroller.trigger("click");
+            $imageScroller.trigger("scroll");
+        }
+    });
+
     // Image onLoad event handler: sets up source image canvas etc.
     $(sourceImage).load(function () {
         var w, h, sp, sd, sourceData;
 
-        $imageScroller.show();
+        sampleLoaded = true;
+
+        $imageScroller.show().scrollLeft(0).scrollTop(0);
         $loadingMessage.fadeOut();
 
         w = sourceImage.width;
@@ -265,10 +279,12 @@ $(function () {
 
         $spriteMarker.width(w * zoomLevel).height(h * zoomLevel);
 
-        resetSizes();
         cropType = -1;
-        $imageScroller.trigger("click");
-        $imageScroller.trigger("scroll");
+        if (transparencyTileLoaded) {
+            resetSizes();
+            $imageScroller.trigger("click");
+            $imageScroller.trigger("scroll");
+        }
     });
 
     $(window).resize(function () {

@@ -23,7 +23,7 @@ body {
     font-family: sans-serif;
 
     margin: 0;
-    padding: 0 20px;
+    padding: 20px 20px 0 20px;
 }
 
 input, button {
@@ -31,19 +31,21 @@ input, button {
     width: 6em;
 }
 
-h1 {
-    float: left;
-    margin: 0 25px 20px 0;
+#mainheading {
+    display: inline;
+    margin: 0 10px 20px 0;
     padding: 0;
     font-size: 2em;
+    vertical-align: baseline;
 }
 
-h1:after {
+#mainheading:after {
     content: " : ";
 }
 
 #instructions {
-    padding-top: 1em;
+    display: inline;
+    vertical-align: baseline;
 }
 
 #upload-url-toggle, #upload-button, #load-image {
@@ -51,27 +53,29 @@ h1:after {
 }
 
 #upload-url-toggle {
-    width: 26px;
-    height: 26px;
-    background-image: url("/images/toggle_up_down.gif");
-    border: 1px solid #ACF;
-    background-color: #EEE;
+    width: 24px;
+    height: 24px;
+    background: url("/images/sprite.png") no-repeat 0 0;
     cursor: pointer;
     float: left;
     margin-right: 10px;
+    border: none;
 }
 
 #upload-url-toggle:hover {
-    background-color: #FFF;
-    border-color: #ACF;
+    background-position: 0 -24px;
 }
 
-#upload-url-toggle:active {
-    background-color: #ACF;
+#upload-url-toggle.url {
+    background-position: -48px 0;
+}
+
+#upload-url-toggle.url:hover {
+    background-position: -48px -25px;
 }
 
 #url-container {
-    clear: both;
+    margin-top: 20px;
 }
 
 #image-url, #upload-form {
@@ -89,17 +93,60 @@ h1:after {
     float: left;
 }
 
+#src-url, #src-upload {
+    float: left;
+}
+
 #src-upload {
     display: none;
+    position: relative;
 }
 
 #image-url {
     height: 25px;
 }
 
+#image-url:invalid {
+    color: #D00;
+}
+
 #upload-input {
     width: 600px;
     height: 25px;
+    cursor: pointer !important;
+}
+
+#information-button {
+    width: 14px;
+    height: 14px;
+    background: url("/images/sprite.png") no-repeat -28px -1px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+#information-button:hover {
+    background-position: -28px -17px;
+}
+
+#upload-information {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    width: 300px;
+    z-index: 99;
+    background-color: #FFF;
+    color: #333;
+    padding: 0 20px;
+    border: 1px solid #ACF;
+    -moz-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+
+    display: none;
+}
+
+#information-button:hover + #upload-information {
+    display: block;
 }
 
 #main-wrapper {

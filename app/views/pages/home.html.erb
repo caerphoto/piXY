@@ -5,14 +5,14 @@
     Total: <span id="debug3"></span><br/>
 </div>
 
-<h1>piXY</h1>
+<h1 id="mainheading">piXY</h1>
 <p id="instructions">Enter an image URL, or upload an image file, then click the zoomed image to
 mark sprite position and size.</p>
 
 <div id="url-container">
-    <button id="upload-url-toggle" title="Switch between loading from a URL, and loading from an uploaded file."></button>
+    <button id="upload-url-toggle" title="Switch between loading from a URL, and using an uploaded file."></button>
     <div id="src-url">
-        <input type="text" id="image-url"/>
+        <input type="url" id="image-url"/>
         <button id="load-image">Load</button>
     </div>
 
@@ -23,6 +23,15 @@ mark sprite position and size.</p>
             <input type="file" name="upload" id="upload-input" size=20 accept="image/*"/>
         </form>
         <button id="upload-button">Upload</button>
+        <div id="information-button"></div>
+        <div id="upload-information">
+            <p>Due to browser security restrictions, scripts are not allowed to
+            access the local filesystem. To work around this, the file is
+            uploaded to the server and read from there.</p>
+            <p>When the file
+            gets uploaded, it is simply Base64-encoded and
+            sent back to the client; it is not recorded in any way.</p>
+        </div>
 
         <!-- container for receiving uploaded file data -->
         <iframe name="uploadframe" src="about:blank" style="display: none" id="upload-receiver">
