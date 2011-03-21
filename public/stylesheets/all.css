@@ -26,7 +26,8 @@ body {
     padding: 20px 20px 0 20px;
 }
 
-input, button {
+button {
+/*input, button {*/
     font-size: 100%;
     width: 6em;
 }
@@ -214,6 +215,10 @@ input, button {
     position: absolute;
     bottom: -20px;
     height: 15px;
+}
+
+#native-scaling-container {
+    right: 580px;
 }
 
 #binary-transparency-container {

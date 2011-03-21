@@ -13,6 +13,8 @@ $(function () {
         $zoomLevel = $("#zoom-level"),
         $bgType = $("#bg-type"),
         bgType = "gray-check",
+        $nativeScaling = $("#native-scaling"),
+        nativeScaling = $nativeScaling.attr("checked"),
         $binaryTransparency = $("#binary-transparency"),
         binaryTransparency = true,
 
@@ -32,7 +34,7 @@ $(function () {
         $cropBottom = $("#crop-bottom"),
         $cropLeft = $("#crop-left"),
 
-        drawScaledImage, drawAutoScaledImage, scaleFunction,
+        drawScaledImage, drawNativeScaledImage, scaleFunction,
 
         sourceImage = new Image(),
         transPatternImage = new Image(),
@@ -57,11 +59,10 @@ $(function () {
         spriteW = 0, spriteH = 0,
         zoomLevel = parseInt($zoomLevel.val(), 10);
 
-    // Use browser's native scaling algorithm. Will only be used if we can be
-    // sure the browser can be set to use nearest-neighbour scaling. Hopefully
-    // WHATWG will see the light and provide a standard way to control the
-    // resampling method.
-    drawAutoScaledImage = function () {
+    // Use browser's native scaling algorithm. Hopefully WHATWG will see the
+    // light and provide a standard way to control the resampling method, so we
+    // can use this method all the time.
+    drawNativeScaledImage = function () {
         var start = new Date(), fullRenderTime;
 
         // Smoothing must apparently be disabled right before drawing. That or
@@ -76,8 +77,8 @@ $(function () {
     };
 
     // Custom nearest-neighbour scaling algorithm. Slower than using the
-    // browser's native scaling, but the only way to do it if the browser
-    // doesn't support disabling of image smoothing.
+    // browser's native scaling, but the only way to do it properly if the
+    // browser doesn't support disabling/control of image smoothing.
     drawScaledImage = function () {
        var sourceData, destData, sd, dd,
             sp, dp,
@@ -97,12 +98,12 @@ $(function () {
             for (x1 = 0; x1 < sw; x1 += 1) {
                 sp = (x1 + y1 * sw) * 4;
 
-                x2 = x1 * zoomLevel;
-                y2 = y1 * zoomLevel;
-
-                dp = (x2 + y2 * dw) * 4;
-
                 if (sd[sp + 3] !== 0) {
+                    x2 = x1 * zoomLevel;
+                    y2 = y1 * zoomLevel;
+
+                    dp = (x2 + y2 * dw) * 4;
+
                     dd[dp]     = sd[sp];
                     dd[dp + 1] = sd[sp + 1];
                     dd[dp + 2] = sd[sp + 2];
@@ -134,17 +135,6 @@ $(function () {
         $debug3.text(fullRenderTime);
     }; // drawScaledImage()
 
-    if (typeof compBuffer.mozImageSmoothingEnabled !== "undefined") {
-        scaleFunction = drawAutoScaledImage;
-    } else {
-        scaleFunction = drawScaledImage;
-    }
-
-    transPatternImage.src = "/images/transparent1.png";
-
-    // Demo image
-    sourceImage.src = "/images/sprite.png";
-
     // Create a viewport-sized source tiled with the 'transparency.png' image.
     // This is to avoid having to tile it each frame.
     createTransparency = function () {
@@ -157,7 +147,7 @@ $(function () {
                 transPattern.drawImage(transPatternImage, x, y);
             }
         }
-    };
+    }; // createTransparency()
 
     // Adjust canvas sizes to match the viewport.
     resetSizes = function () {
@@ -179,7 +169,7 @@ $(function () {
         compBufferCanvas.width = dw;
         compBufferCanvas.height = dh;
 
-        if (scaleFunction !== drawAutoScaledImage) {
+        if (scaleFunction !== drawNativeScaledImage) {
             compBuffer2Canvas.width = dw;
             compBuffer2Canvas.height = dh;
         }
@@ -224,10 +214,10 @@ $(function () {
     });
 
     $("#upload-url-toggle").click(function () {
-            $("#src-url").toggle();
-            $("#src-upload").toggle();
-            $("#upload-url-toggle").toggleClass("url");
-        });
+        $("#src-url").toggle();
+        $("#src-upload").toggle();
+        $("#upload-url-toggle").toggleClass("url");
+    });
 
     $uploadButton.click(function () {
         $loadingMessage.fadeIn(100);
@@ -262,7 +252,7 @@ $(function () {
         sourceBuffer.drawImage(sourceImage, 0, 0);
 
         // Create a binary transparency version of the source image.
-        if (scaleFunction === drawAutoScaledImage) {
+        if (scaleFunction === drawNativeScaledImage) {
             sourceData = sourceBuffer.getImageData(0, 0, w, h);
             sd = sourceData.data;
 
@@ -337,6 +327,11 @@ $(function () {
     $bgType.change(function () {
         bgType = $bgType.val();
         $(window).trigger("resize");
+    });
+
+    $nativeScaling.change(function () {
+        scaleFunction = this.checked ? drawNativeScaledImage : drawScaledImage;
+        $(sourceImage).trigger("load");
     });
 
     $binaryTransparency.change(function () {
@@ -468,4 +463,20 @@ $(function () {
         $setLeft.css("left", (x1 + sL - ox) + "px");
         $setTop.css("top", (y1 + sT - oy) + "px");
     });
+
+    // Initialisation
+    // --------------
+
+    // Use native scaling in Gecko-based browsers, since it's much faster.
+    if (typeof compBuffer.mozImageSmoothingEnabled !== "undefined") {
+        $nativeScaling.attr("checked", true);
+        scaleFunction = drawNativeScaledImage;
+    } else {
+        scaleFunction = drawScaledImage;
+    }
+
+    transPatternImage.src = "/images/transparent1.png";
+
+    // Demo image
+    sourceImage.src = "/images/sprite.png";
 });
